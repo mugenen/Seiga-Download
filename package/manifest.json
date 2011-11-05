@@ -1,0 +1,24 @@
+{
+  "name": "Seiga Download",
+  "version": "1.0",
+  "description": "ニコニコ静画の作品ページに画像ダウンロード用のリンクを追加",
+  "icons": 
+  {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "Seiga_Download.user.js"
+      ],
+      "css": [
+        "main.css"
+      ],
+      "matches": [
+        "http://seiga.nicovideo.jp/seiga/im*"
+      ]
+    }
+  ]
+}
