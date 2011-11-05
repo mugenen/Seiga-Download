@@ -10,12 +10,19 @@
     opt.target.dispatchEvent(evt);
     return evt;
   }
+  //See: http://d.hatena.ne.jp/brazil/20070103/1167788352
+  function absolutePath(path){
+    var e = document.createElement('span');
+    e.innerHTML = '<a href="' + path + '" />';
+    return e.firstChild.href;
+  }
   
-  
+  var images = document.getElementById("illust_main_top").getElementsByTagName("a");
+  var imageURL = absolutePath(images[1].getAttribute("href"));
+
   var main = function(){
-    var images = document.getElementById("illust_main_top").getElementsByTagName("a");
     var toClick = document.createElement("a");
-    toClick.setAttribute("href", images[1].getAttribute("href"));
+    toClick.setAttribute("href", imageURL);
     dispatchMouseEvents({ type:'click', altKey:true, target:toClick, button:0 });
   };
 
@@ -34,5 +41,27 @@
   };
   click();
   div.appendChild(a);
+  
+  img.setAttribute("draggable", false)
+  
+  var drag = function(type) {
+    a.addEventListener("dragstart", function (e) {
+      var original = imageURL;
+      var title = document.getElementsByClassName("title_text")[0].textContent.replace(/^\s+/, '').replace(/\s+$/, '');
+      var creator = document.getElementsByClassName("illust_user_name")[0].getElementsByTagName("strong")[0].textContent;
+      var id = document.URL.substring(document.URL.lastIndexOf("/") + 1);
+      
+      var filename = type + ":" + creator + " - " + title + "(" + id + ")" + ":" + original;
+      console.log(filename);
+      e.dataTransfer.setData("DownloadURL", filename);
+    }, false);
+  };
+  
+  var type = ""
+  chrome.extension.sendRequest(imageURL, function(response, type) {
+    type = response;
+    drag(type);
+  });
+
   parent.insertBefore(div, after);
 })();

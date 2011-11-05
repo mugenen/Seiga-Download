@@ -1,7 +1,12 @@
 {
   "name": "Seiga Download",
-  "version": "1.0",
+  "version": "1.1",
   "description": "ニコニコ静画の作品ページに画像ダウンロード用のリンクを追加",
+  "background_page": "background.html",
+  "permissions": [
+    "http://seiga.nicovideo.jp/seiga/im*",
+    "http://lohas.nicoseiga.jp/priv/*"
+  ],
   "icons": 
   {
     "16": "icon16.png",
