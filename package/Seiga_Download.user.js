@@ -49,7 +49,7 @@
       var original = imageURL;
       var title = document.getElementsByClassName("title_text")[0].textContent.replace(/^\s+/, '').replace(/\s+$/, '');
       var creator = document.getElementsByClassName("illust_user_name")[0].getElementsByTagName("strong")[0].textContent;
-      var id = document.URL.substring(document.URL.lastIndexOf("/") + 1);
+      var id = document.URL.substring(document.URL.lastIndexOf("/") + 1).replace(/(im\d+).*/, '$1');
       
       var filename = type + ":" + creator + " - " + title + "(" + id + ")" + ":" + original;
       console.log(filename);
