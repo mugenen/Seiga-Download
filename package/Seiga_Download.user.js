@@ -61,7 +61,7 @@
   chrome.extension.sendRequest(imageURL, function(response, type) {
     type = response;
     drag(type);
+    parent.insertBefore(div, after);
   });
 
-  parent.insertBefore(div, after);
 })();
