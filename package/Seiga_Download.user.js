@@ -25,6 +25,7 @@
     var filename = creator + ' - ' + title + '(' + id + ')';
     toClick.setAttribute('download', filename);
     dispatchMouseEvents({ type:'click', altKey:false, target:toClick, button:0 });
+    this.removeEventListener('click', main);
   };
 
   var root = document.getElementById('illust_main_top');
@@ -40,8 +41,6 @@
   a.addEventListener('click', main, false);
   div.appendChild(a);
   
-  chrome.extension.sendRequest(imageURL, function(response, type) {
-    parent.insertBefore(div, after);
-  });
+  parent.insertBefore(div, after);
 
 })();
