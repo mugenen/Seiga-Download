@@ -1,46 +1,103 @@
-'use strict';
-(function(){
-  //Alt + Click
-  //See: http://d.hatena.ne.jp/Griever/20100904/1283603283
-  function dispatchMouseEvents(opt) {
-    var evt = document.createEvent('MouseEvents');
-    evt.initMouseEvent(opt.type, opt.canBubble||true, opt.cancelable||true, opt.view||window, 
-                       opt.detail||0, opt.screenX||0, opt.screenY||0, opt.clientX||0, opt.clientY||0, 
-                       opt.ctrlKey||false, opt.altKey||false, opt.shiftKey||false, opt.metaKey||false, 
-                       opt.button||0, opt.relatedTarget||null);
-    opt.target.dispatchEvent(evt);
-    return evt;
-  }
-  
-  var images = document.getElementById('illust_main_top').getElementsByTagName('a');
-  var imageURL = images[1].getAttribute('href');
+(function() {
+  var addLink, dispatchMouseEvents, download, filename, getFileName, getImageCreator, getImageID, getImageTitle, getImageURL, url;
 
-  var main = function(){
-    var toClick = document.createElement('a');
-    toClick.setAttribute('href', imageURL);
-    var title = document.getElementsByClassName('title_text')[0].textContent.replace(/^\s+/, '').replace(/\s+$/, '');
-    var creator = document.getElementsByClassName('illust_user_name')[0].getElementsByTagName('strong')[0].textContent;
-    var id = document.URL.substring(document.URL.lastIndexOf('/') + 1).replace(/(im\d+).*/, '$1');
-    
-    var filename = creator + ' - ' + title + '(' + id + ')';
-    toClick.setAttribute('download', filename);
-    dispatchMouseEvents({ type:'click', altKey:false, target:toClick, button:0 });
-    this.removeEventListener('click', main);
+  dispatchMouseEvents = function(opt) {
+    /*
+        Alt + Click
+        See: http://d.hatena.ne.jp/Griever/20100904/1283603283
+    */
+    var evt;
+    evt = document.createEvent('MouseEvents');
+    evt.initMouseEvent(opt.type, opt.canBubble || true, opt.cancelable || true, opt.view || window, opt.detail || 0, opt.screenX || 0, opt.screenY || 0, opt.clientX || 0, opt.clientY || 0, opt.ctrlKey || false, opt.altKey || false, opt.shiftKey || false, opt.metaKey || false, opt.button || 0, opt.relatedTarget || null);
+    return opt.target.dispatchEvent(evt);
   };
 
-  var root = document.getElementById('illust_main_top');
-  var parent = root.getElementsByTagName('td')[0].getElementsByTagName('td')[0];
-  var after = parent.getElementsByTagName('div')[0];
-  var div = document.createElement('div');
-  div.setAttribute('id', 'SD');
-  var a = document.createElement('a');
-  var img = document.createElement('img')
-  img.setAttribute('src', chrome.extension.getURL('download.png'));
-  a.appendChild(img);
-  a.setAttribute('href', 'javascript:void(0);');
-  a.addEventListener('click', main, false);
-  div.appendChild(a);
-  
-  parent.insertBefore(div, after);
+  getImageURL = function() {
+    var tag;
+    tag = document.querySelectorAll('#illust_main_top a');
+    if (tag.length > 0) {
+      return tag[1].getAttribute('href');
+    } else {
+      return null;
+    }
+  };
 
-})();
+  getImageTitle = function() {
+    var tag;
+    tag = document.querySelectorAll('.title_text');
+    if (tag.length > 0) {
+      return tag[0].textContent.replace(/^\s+/, '').replace(/\s+$/, '');
+    } else {
+      return null;
+    }
+  };
+
+  getImageCreator = function() {
+    var tag;
+    tag = document.querySelectorAll('.illust_user_name strong');
+    if (tag.length > 0) {
+      return tag[0].textContent;
+    } else {
+      return null;
+    }
+  };
+
+  getImageID = function() {
+    return document.URL.replace(/.*(im\d+).*/, '$1');
+  };
+
+  getFileName = function() {
+    var creator, id, title;
+    creator = getImageCreator();
+    title = getImageTitle();
+    id = getImageID();
+    if ((creator != null) && (title != null) && (id != null)) {
+      return creator + ' - ' + title + '(' + id + ')';
+    } else {
+      return null;
+    }
+  };
+
+  download = function(url, filename) {
+    return function() {
+      var toClick;
+      toClick = document.createElement('a');
+      toClick.setAttribute('href', url);
+      toClick.setAttribute('download', filename);
+      dispatchMouseEvents({
+        type: 'click',
+        altKey: false,
+        target: toClick,
+        button: 0
+      });
+      return this.removeEventListener('click', arguments.callee);
+    };
+  };
+
+  addLink = function(url, filename) {
+    var a, after, div, img, parent;
+    img = document.createElement('img');
+    img.setAttribute('src', chrome.extension.getURL('download.png'));
+    a = document.createElement('a');
+    a.appendChild(img);
+    a.setAttribute('href', 'javascript:void(0);');
+    a.addEventListener('click', download(url, filename), false);
+    div = document.createElement('div');
+    div.setAttribute('id', 'SD');
+    div.appendChild(a);
+    parent = document.querySelector('#illust_main_top td td');
+    after = parent.querySelector('div');
+    return parent.insertBefore(div, after);
+  };
+
+  url = getImageURL();
+
+  filename = getFileName();
+
+  if ((url != null) && (filename != null)) {
+    addLink(url, filename);
+  } else {
+    return;
+  }
+
+}).call(this);
