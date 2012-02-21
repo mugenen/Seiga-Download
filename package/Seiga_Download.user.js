@@ -1,4 +1,5 @@
 (function() {
+  'use strict';
   var addLink, dispatchMouseEvents, download, filename, getFileName, getImageCreator, getImageID, getImageTitle, getImageURL, url;
 
   dispatchMouseEvents = function(opt) {
@@ -59,29 +60,30 @@
   };
 
   download = function(url, filename) {
-    return function() {
-      var toClick;
-      toClick = document.createElement('a');
-      toClick.setAttribute('href', url);
-      toClick.setAttribute('download', filename);
-      dispatchMouseEvents({
-        type: 'click',
-        altKey: false,
-        target: toClick,
-        button: 0
-      });
-      return this.removeEventListener('click', arguments.callee);
-    };
+    var toClick;
+    toClick = document.createElement('a');
+    toClick.setAttribute('href', url);
+    toClick.setAttribute('download', filename);
+    return dispatchMouseEvents({
+      type: 'click',
+      altKey: false,
+      target: toClick,
+      button: 0
+    });
   };
 
   addLink = function(url, filename) {
-    var a, after, div, img, parent;
+    var a, after, div, img, main, parent;
     img = document.createElement('img');
     img.setAttribute('src', chrome.extension.getURL('download.png'));
     a = document.createElement('a');
     a.appendChild(img);
     a.setAttribute('href', 'javascript:void(0);');
-    a.addEventListener('click', download(url, filename), false);
+    main = function() {
+      download(url, filename);
+      return this.removeEventListener('click', main);
+    };
+    a.addEventListener('click', main, false);
     div = document.createElement('div');
     div.setAttribute('id', 'SD');
     div.appendChild(a);

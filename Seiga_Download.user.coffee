@@ -1,3 +1,4 @@
+'use strict';
 dispatchMouseEvents = (opt) ->
     ###
     Alt + Click
@@ -44,14 +45,10 @@ getFileName = () ->
         null
 
 download = (url, filename) ->
-    () ->
-        toClick = document.createElement('a');
-        toClick.setAttribute('href', url);
-        toClick.setAttribute('download', filename);
-        dispatchMouseEvents({type:'click', altKey:false, target:toClick, button:0});
-#        ‚ ‚Æ‚Å‘Î‰ž‚·‚é‚©‚à
-#        document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
-        this.removeEventListener('click', arguments.callee);
+    toClick = document.createElement('a');
+    toClick.setAttribute('href', url);
+    toClick.setAttribute('download', filename);
+    dispatchMouseEvents({type:'click', altKey:false, target:toClick, button:0});
 
 addLink = (url, filename) ->
     img = document.createElement('img')
@@ -60,7 +57,12 @@ addLink = (url, filename) ->
     a = document.createElement('a');
     a.appendChild(img);
     a.setAttribute('href', 'javascript:void(0);');
-    a.addEventListener('click', download(url, filename), false);
+    main = () ->
+        download(url, filename)
+#        ‚ ‚Æ‚Å‘Î‰ž‚·‚é‚©‚à
+#        document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
+        this.removeEventListener('click', main);
+    a.addEventListener('click', main, false);
 
     div = document.createElement('div');
     div.setAttribute('id', 'SD');
