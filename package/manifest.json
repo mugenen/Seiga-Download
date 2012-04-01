@@ -1,6 +1,6 @@
 {
   "name": "Seiga Download",
-  "version": "2.2",
+  "version": "2.3",
   "description": "ニコニコ静画の作品ページに画像ダウンロード用のリンクを追加",
   "icons": 
   {
@@ -11,6 +11,7 @@
   "content_scripts": [
     {
       "js": [
+        "jquery-1.7.2.min.js",
         "Seiga_Download.user.js"
       ],
       "css": [

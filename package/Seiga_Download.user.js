@@ -15,9 +15,9 @@
 
   getImageURL = function() {
     var tag;
-    tag = document.querySelectorAll('#illust_main_top a');
+    tag = $('#illust_main_top a:eq(1)');
     if (tag.length > 0) {
-      return tag[1].getAttribute('href');
+      return tag.attr('href');
     } else {
       return null;
     }
@@ -25,9 +25,9 @@
 
   getImageTitle = function() {
     var tag;
-    tag = document.querySelectorAll('.title_text');
+    tag = $('div.title_text');
     if (tag.length > 0) {
-      return tag[0].textContent.replace(/^\s+/, '').replace(/\s+$/, '');
+      return tag.text().trim();
     } else {
       return null;
     }
@@ -35,9 +35,9 @@
 
   getImageCreator = function() {
     var tag;
-    tag = document.querySelectorAll('.illust_user_name strong');
+    tag = $('.illust_user_name strong');
     if (tag.length > 0) {
-      return tag[0].textContent;
+      return tag.text();
     } else {
       return null;
     }
@@ -53,7 +53,7 @@
     title = getImageTitle();
     id = getImageID();
     if ((creator != null) && (title != null) && (id != null)) {
-      return creator + ' - ' + title + '(' + id + ')';
+      return "" + creator + " - " + title + "(" + id + ")";
     } else {
       return null;
     }
@@ -61,35 +61,34 @@
 
   download = function(url, filename) {
     var toClick;
-    toClick = document.createElement('a');
-    toClick.setAttribute('href', url);
-    toClick.setAttribute('download', filename);
+    toClick = $('<a>');
+    toClick.attr('href', url);
+    toClick.attr('download', filename);
     return dispatchMouseEvents({
       type: 'click',
       altKey: false,
-      target: toClick,
+      target: toClick.get(0),
       button: 0
     });
   };
 
   addLink = function(url, filename) {
-    var a, after, div, img, main, parent;
-    img = document.createElement('img');
-    img.setAttribute('src', chrome.extension.getURL('download.png'));
-    a = document.createElement('a');
-    a.appendChild(img);
-    a.setAttribute('href', 'javascript:void(0);');
+    var a, div, img, main, parent;
+    img = $('<img>');
+    img.attr('src', chrome.extension.getURL('download.png'));
+    a = $('<a>');
+    a.append(img);
+    a.attr('href', 'javascript:void(0);');
     main = function() {
       download(url, filename);
-      return this.removeEventListener('click', main);
+      return false;
     };
-    a.addEventListener('click', main, false);
-    div = document.createElement('div');
-    div.setAttribute('id', 'SD');
-    div.appendChild(a);
-    parent = document.querySelector('#illust_main_top td td');
-    after = parent.querySelector('div');
-    return parent.insertBefore(div, after);
+    a.one('click', main);
+    div = $('<div>');
+    div.attr('id', 'SD');
+    div.append(a);
+    parent = $('#illust_main_top td td');
+    return parent.prepend(div);
   };
 
   url = getImageURL();

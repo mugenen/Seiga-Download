@@ -12,23 +12,23 @@ dispatchMouseEvents = (opt) ->
     opt.target.dispatchEvent(evt);
 
 getImageURL = () ->
-    tag = document.querySelectorAll('#illust_main_top a')
+    tag = $('#illust_main_top a:eq(1)')
     if tag.length > 0
-        tag[1].getAttribute('href');
+        tag.attr('href');
     else
         null
 
 getImageTitle = () ->
-    tag = document.querySelectorAll('.title_text')
+    tag = $('div.title_text')
     if tag.length > 0
-        tag[0].textContent.replace(/^\s+/, '').replace(/\s+$/, '');
+        tag.text().trim();
     else
         null
 
 getImageCreator = () ->
-    tag = document.querySelectorAll('.illust_user_name strong')
+    tag = $('.illust_user_name strong')
     if tag.length > 0
-        tag[0].textContent;
+        tag.text()
     else
         null
 
@@ -40,37 +40,36 @@ getFileName = () ->
     title = getImageTitle()
     id = getImageID()
     if creator? and title? and id?
-        creator + ' - ' + title + '(' + id + ')'
+        "#{creator} - #{title}(#{id})"
     else
         null
 
 download = (url, filename) ->
-    toClick = document.createElement('a');
-    toClick.setAttribute('href', url);
-    toClick.setAttribute('download', filename);
-    dispatchMouseEvents({type:'click', altKey:false, target:toClick, button:0});
+    toClick = $('<a>')
+    toClick.attr('href', url);
+    toClick.attr('download', filename);
+    dispatchMouseEvents({type:'click', altKey:false, target:toClick.get(0), button:0});
 
 addLink = (url, filename) ->
-    img = document.createElement('img')
-    img.setAttribute('src', chrome.extension.getURL('download.png'));
+    img = $('<img>')
+    img.attr('src', chrome.extension.getURL('download.png'));
 
-    a = document.createElement('a');
-    a.appendChild(img);
-    a.setAttribute('href', 'javascript:void(0);');
+    a = $('<a>')
+    a.append(img);
+    a.attr('href', 'javascript:void(0);');
     main = () ->
         download(url, filename)
 #        ‚ ‚Æ‚Å‘Î‰ž‚·‚é‚©‚à
 #        document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
-        this.removeEventListener('click', main);
-    a.addEventListener('click', main, false);
+        false
+    a.one('click', main);
 
-    div = document.createElement('div');
-    div.setAttribute('id', 'SD');
-    div.appendChild(a);
+    div = $('<div>');
+    div.attr('id', 'SD');
+    div.append(a);
 
-    parent = document.querySelector('#illust_main_top td td');
-    after = parent.querySelector('div');
-    parent.insertBefore(div, after);
+    parent = $('#illust_main_top td td');
+    parent.prepend(div);
 
 
 url = getImageURL()
