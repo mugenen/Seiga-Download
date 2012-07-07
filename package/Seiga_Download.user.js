@@ -87,7 +87,7 @@
     div = $('<div>');
     div.attr('id', 'SD');
     div.append(a);
-    parent = $('#illust_main_top td td');
+    parent = $('#illust_main_top td td').eq(0);
     return parent.prepend(div);
   };
 
