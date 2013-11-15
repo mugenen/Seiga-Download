@@ -11,29 +11,42 @@ dispatchMouseEvents = (opt) ->
                        opt.button||0, opt.relatedTarget||null);
     opt.target.dispatchEvent(evt);
 
-getImageURL = () ->
-    tag = $('#illust_main_top a:eq(1)')
+getImagePageURL = () ->
+    tag = $('#illust_link')
     if tag.length > 0
         tag.attr('href');
     else
         null
 
+getImageURL = () ->
+    dfd = $.Deferred()
+    url = getImagePageURL()
+    if url?
+        chrome.extension.sendMessage {url: 'http://seiga.nicovideo.jp' + url}, (response) ->
+            if response?
+                dfd.resolve('http://lohas.nicoseiga.jp/' + response.image_url)
+            else
+                dfd.reject()
+    else
+        dfd.reject()
+    dfd.promise()
+
 getImageTitle = () ->
-    tag = $('div.title_text')
+    tag = $('h1.title')
     if tag.length > 0
         tag.text().trim();
     else
         null
 
 getImageCreator = () ->
-    tag = $('.illust_user_name strong')
+    tag = $('.user_name strong')
     if tag.length > 0
         tag.text()
     else
         null
 
 getImageID = () ->
-    document.URL.replace(/.*(im\d+).*/, '$1')
+    document.URL.replace(/.*?(im\d+).*/, '$1')
 
 getFileName = () ->
     creator = getImageCreator()
@@ -53,13 +66,13 @@ download = (url, filename) ->
 addLink = (url, filename) ->
     img = $('<img>')
     img.attr('src', chrome.extension.getURL('download.png'));
-
+    img.attr('draggable', false)
+    
     a = $('<a>')
     a.append(img);
     a.attr('href', 'javascript:void(0);');
     main = () ->
         download(url, filename)
-#        ‚ ‚Æ‚Å‘Î‰ž‚·‚é‚©‚à
 #        document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
         false
     a.one('click', main);
@@ -68,15 +81,12 @@ addLink = (url, filename) ->
     div.attr('id', 'SD');
     div.append(a);
 
-    parent = $('#illust_main_top td td').eq(0);
+    parent = $('.thum_large').eq(0);
     parent.prepend(div);
 
-
-url = getImageURL()
 filename = getFileName()
 
-if url? and filename?
-    addLink(url, filename)
-else
-    return
+if filename?
+    getImageURL().done (url) ->
+        addLink(url, filename)
 

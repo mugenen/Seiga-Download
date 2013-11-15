@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var addLink, dispatchMouseEvents, download, filename, getFileName, getImageCreator, getImageID, getImageTitle, getImageURL, url;
+  var addLink, dispatchMouseEvents, download, filename, getFileName, getImageCreator, getImageID, getImagePageURL, getImageTitle, getImageURL;
 
   dispatchMouseEvents = function(opt) {
     /*
@@ -13,9 +13,9 @@
     return opt.target.dispatchEvent(evt);
   };
 
-  getImageURL = function() {
+  getImagePageURL = function() {
     var tag;
-    tag = $('#illust_main_top a:eq(1)');
+    tag = $('#illust_link');
     if (tag.length > 0) {
       return tag.attr('href');
     } else {
@@ -23,9 +23,29 @@
     }
   };
 
+  getImageURL = function() {
+    var dfd, url;
+    dfd = $.Deferred();
+    url = getImagePageURL();
+    if (url != null) {
+      chrome.extension.sendMessage({
+        url: 'http://seiga.nicovideo.jp' + url
+      }, function(response) {
+        if (response != null) {
+          return dfd.resolve('http://lohas.nicoseiga.jp/' + response.image_url);
+        } else {
+          return dfd.reject();
+        }
+      });
+    } else {
+      dfd.reject();
+    }
+    return dfd.promise();
+  };
+
   getImageTitle = function() {
     var tag;
-    tag = $('div.title_text');
+    tag = $('h1.title');
     if (tag.length > 0) {
       return tag.text().trim();
     } else {
@@ -35,7 +55,7 @@
 
   getImageCreator = function() {
     var tag;
-    tag = $('.illust_user_name strong');
+    tag = $('.user_name strong');
     if (tag.length > 0) {
       return tag.text();
     } else {
@@ -44,7 +64,7 @@
   };
 
   getImageID = function() {
-    return document.URL.replace(/.*(im\d+).*/, '$1');
+    return document.URL.replace(/.*?(im\d+).*/, '$1');
   };
 
   getFileName = function() {
@@ -76,6 +96,7 @@
     var a, div, img, main, parent;
     img = $('<img>');
     img.attr('src', chrome.extension.getURL('download.png'));
+    img.attr('draggable', false);
     a = $('<a>');
     a.append(img);
     a.attr('href', 'javascript:void(0);');
@@ -87,18 +108,16 @@
     div = $('<div>');
     div.attr('id', 'SD');
     div.append(a);
-    parent = $('#illust_main_top td td').eq(0);
+    parent = $('.thum_large').eq(0);
     return parent.prepend(div);
   };
 
-  url = getImageURL();
-
   filename = getFileName();
 
-  if ((url != null) && (filename != null)) {
-    addLink(url, filename);
-  } else {
-    return;
+  if (filename != null) {
+    getImageURL().done(function(url) {
+      return addLink(url, filename);
+    });
   }
 
 }).call(this);
