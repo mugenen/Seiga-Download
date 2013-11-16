@@ -22,9 +22,23 @@ getImageURL = () ->
     dfd = $.Deferred()
     url = getImagePageURL()
     if url?
-        chrome.extension.sendMessage {url: 'http://seiga.nicovideo.jp' + url}, (response) ->
+        chrome.extension.sendMessage {type: 'url', url: 'http://seiga.nicovideo.jp' + url}, (response) ->
             if response?
-                dfd.resolve('http://lohas.nicoseiga.jp/' + response.image_url)
+                dfd.resolve('http://lohas.nicoseiga.jp' + response.image_url)
+            else
+                dfd.reject()
+    else
+        dfd.reject()
+    dfd.promise()
+
+getImageType = (url, filename) ->
+    dfd = $.Deferred()
+    if filename.indexOf('.') == -1
+        dfd.resolve('')
+    else if url?
+        chrome.extension.sendMessage {type: 'filetype', url: url}, (response) ->
+            if response?
+                dfd.resolve(response.image_type)
             else
                 dfd.reject()
     else
@@ -73,8 +87,9 @@ addLink = (url_dfd, filename) ->
     a.attr('href', 'javascript:void(0);');
     main = () ->
         url_dfd.done (url) ->
-            download(url, filename)
-#            document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
+            getImageType(url, filename).done (type) ->
+                download(url, filename + type)
+#                document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
         false
     a.one('click', main);
 

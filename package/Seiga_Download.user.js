@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var addLink, dispatchMouseEvents, download, filename, getFileName, getImageCreator, getImageID, getImagePageURL, getImageTitle, getImageURL;
+  var addLink, dispatchMouseEvents, download, filename, getFileName, getImageCreator, getImageID, getImagePageURL, getImageTitle, getImageType, getImageURL;
 
   dispatchMouseEvents = function(opt) {
     /*
@@ -29,10 +29,33 @@
     url = getImagePageURL();
     if (url != null) {
       chrome.extension.sendMessage({
+        type: 'url',
         url: 'http://seiga.nicovideo.jp' + url
       }, function(response) {
         if (response != null) {
-          return dfd.resolve('http://lohas.nicoseiga.jp/' + response.image_url);
+          return dfd.resolve('http://lohas.nicoseiga.jp' + response.image_url);
+        } else {
+          return dfd.reject();
+        }
+      });
+    } else {
+      dfd.reject();
+    }
+    return dfd.promise();
+  };
+
+  getImageType = function(url, filename) {
+    var dfd;
+    dfd = $.Deferred();
+    if (filename.indexOf('.') === -1) {
+      dfd.resolve('');
+    } else if (url != null) {
+      chrome.extension.sendMessage({
+        type: 'filetype',
+        url: url
+      }, function(response) {
+        if (response != null) {
+          return dfd.resolve(response.image_type);
         } else {
           return dfd.reject();
         }
@@ -102,7 +125,9 @@
     a.attr('href', 'javascript:void(0);');
     main = function() {
       url_dfd.done(function(url) {
-        return download(url, filename);
+        return getImageType(url, filename).done(function(type) {
+          return download(url, filename + type);
+        });
       });
       return false;
     };
