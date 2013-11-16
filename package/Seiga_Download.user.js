@@ -92,7 +92,7 @@
     });
   };
 
-  addLink = function(url, filename) {
+  addLink = function(url_dfd, filename) {
     var a, div, img, main, parent;
     img = $('<img>');
     img.attr('src', chrome.extension.getURL('download.png'));
@@ -101,7 +101,9 @@
     a.append(img);
     a.attr('href', 'javascript:void(0);');
     main = function() {
-      download(url, filename);
+      url_dfd.done(function(url) {
+        return download(url, filename);
+      });
       return false;
     };
     a.one('click', main);
@@ -114,10 +116,6 @@
 
   filename = getFileName();
 
-  if (filename != null) {
-    getImageURL().done(function(url) {
-      return addLink(url, filename);
-    });
-  }
+  if (filename != null) addLink(getImageURL(), filename);
 
 }).call(this);

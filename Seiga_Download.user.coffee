@@ -63,7 +63,7 @@ download = (url, filename) ->
     toClick.attr('download', filename);
     dispatchMouseEvents({type:'click', altKey:false, target:toClick.get(0), button:0});
 
-addLink = (url, filename) ->
+addLink = (url_dfd, filename) ->
     img = $('<img>')
     img.attr('src', chrome.extension.getURL('download.png'));
     img.attr('draggable', false)
@@ -72,8 +72,9 @@ addLink = (url, filename) ->
     a.append(img);
     a.attr('href', 'javascript:void(0);');
     main = () ->
-        download(url, filename)
-#        document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
+        url_dfd.done (url) ->
+            download(url, filename)
+#            document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
         false
     a.one('click', main);
 
@@ -87,6 +88,4 @@ addLink = (url, filename) ->
 filename = getFileName()
 
 if filename?
-    getImageURL().done (url) ->
-        addLink(url, filename)
-
+    addLink(getImageURL(), filename)
