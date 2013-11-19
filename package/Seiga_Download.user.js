@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var addLink, dispatchMouseEvents, download, filename, getFileName, getImageCreator, getImageID, getImagePageURL, getImageTitle, getImageType, getImageURL;
+  var addLink, addLink_old, dispatchMouseEvents, download, filename, getFileName, getFileName_old, getImageCreator, getImageCreator_old, getImageID, getImageID_old, getImagePageURL, getImageTitle, getImageTitle_old, getImageType, getImageURL, getImageURL_old, url;
 
   dispatchMouseEvents = function(opt) {
     /*
@@ -142,5 +142,76 @@
   filename = getFileName();
 
   if (filename != null) addLink(getImageURL(), filename);
+
+  getImageURL_old = function() {
+    var tag;
+    tag = $('#illust_main_top a:eq(1)');
+    if (tag.length > 0) {
+      return tag.attr('href');
+    } else {
+      return null;
+    }
+  };
+
+  getImageTitle_old = function() {
+    var tag;
+    tag = $('div.title_text');
+    if (tag.length > 0) {
+      return tag.text().trim();
+    } else {
+      return null;
+    }
+  };
+
+  getImageCreator_old = function() {
+    var tag;
+    tag = $('.illust_user_name strong');
+    if (tag.length > 0) {
+      return tag.text();
+    } else {
+      return null;
+    }
+  };
+
+  getImageID_old = function() {
+    return document.URL.replace(/.*?(im\d+).*/, '$1');
+  };
+
+  getFileName_old = function() {
+    var creator, id, title;
+    creator = getImageCreator_old();
+    title = getImageTitle_old();
+    id = getImageID_old();
+    if ((creator != null) && (title != null) && (id != null)) {
+      return "" + creator + " - " + title + "(" + id + ")";
+    } else {
+      return null;
+    }
+  };
+
+  addLink_old = function(url, filename) {
+    var a, div, img, main, parent;
+    img = $('<img>');
+    img.attr('src', chrome.extension.getURL('download.png'));
+    a = $('<a>');
+    a.append(img);
+    a.attr('href', 'javascript:void(0);');
+    main = function() {
+      download(url, filename);
+      return false;
+    };
+    a.one('click', main);
+    div = $('<div>');
+    div.attr('id', 'SD');
+    div.append(a);
+    parent = $('#illust_main_top td td').eq(0);
+    return parent.prepend(div);
+  };
+
+  url = getImageURL_old();
+
+  filename = getFileName_old();
+
+  if ((url != null) && (filename != null)) addLink_old(url, filename);
 
 }).call(this);

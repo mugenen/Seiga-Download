@@ -104,3 +104,63 @@ filename = getFileName()
 
 if filename?
     addLink(getImageURL(), filename)
+
+
+getImageURL_old = () ->
+    tag = $('#illust_main_top a:eq(1)')
+    if tag.length > 0
+        tag.attr('href');
+    else
+        null
+
+getImageTitle_old = () ->
+    tag = $('div.title_text')
+    if tag.length > 0
+        tag.text().trim();
+    else
+        null
+
+getImageCreator_old = () ->
+    tag = $('.illust_user_name strong')
+    if tag.length > 0
+        tag.text()
+    else
+        null
+
+getImageID_old = () ->
+    document.URL.replace(/.*?(im\d+).*/, '$1')
+
+getFileName_old = () ->
+    creator = getImageCreator_old()
+    title = getImageTitle_old()
+    id = getImageID_old()
+    if creator? and title? and id?
+        "#{creator} - #{title}(#{id})"
+    else
+        null
+
+addLink_old = (url, filename) ->
+    img = $('<img>')
+    img.attr('src', chrome.extension.getURL('download.png'));
+
+    a = $('<a>')
+    a.append(img);
+    a.attr('href', 'javascript:void(0);');
+    main = () ->
+        download(url, filename)
+        false
+    a.one('click', main);
+
+    div = $('<div>');
+    div.attr('id', 'SD');
+    div.append(a);
+
+    parent = $('#illust_main_top td td').eq(0);
+    parent.prepend(div);
+
+
+url = getImageURL_old()
+filename = getFileName_old()
+
+if url? and filename?
+    addLink_old(url, filename)
