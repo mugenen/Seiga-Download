@@ -53,7 +53,7 @@ getImageTitle = () ->
         null
 
 getImageCreator = () ->
-    tag = $('.user_name strong')
+    tag = $('.user_name strong').eq(0)
     if tag.length > 0
         tag.text()
     else
