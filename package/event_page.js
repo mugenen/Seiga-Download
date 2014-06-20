@@ -30,6 +30,12 @@
       }).fail(function(data, status) {
         return sendResponse(null);
       });
+    } else if (request.type === 'download') {
+      chrome.downloads.download({
+        url: request.url,
+        filename: request.filename
+      });
+      sendResponse(null);
     }
     return true;
   });

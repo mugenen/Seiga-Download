@@ -1,17 +1,6 @@
 (function() {
   'use strict';
-  var addLink, addLink_old, dispatchMouseEvents, download, filename, getFileName, getFileName_old, getImageCreator, getImageCreator_old, getImageID, getImageID_old, getImagePageURL, getImageTitle, getImageTitle_old, getImageType, getImageURL, getImageURL_old, url;
-
-  dispatchMouseEvents = function(opt) {
-    /*
-        Alt + Click
-        See: http://d.hatena.ne.jp/Griever/20100904/1283603283
-    */
-    var evt;
-    evt = document.createEvent('MouseEvents');
-    evt.initMouseEvent(opt.type, opt.canBubble || true, opt.cancelable || true, opt.view || window, opt.detail || 0, opt.screenX || 0, opt.screenY || 0, opt.clientX || 0, opt.clientY || 0, opt.ctrlKey || false, opt.altKey || false, opt.shiftKey || false, opt.metaKey || false, opt.button || 0, opt.relatedTarget || null);
-    return opt.target.dispatchEvent(evt);
-  };
+  var addLink, addLink_old, download, filename, getFileName, getFileName_old, getImageCreator, getImageCreator_old, getImageID, getImageID_old, getImagePageURL, getImageTitle, getImageTitle_old, getImageType, getImageURL, getImageURL_old, url;
 
   getImagePageURL = function() {
     var tag;
@@ -44,12 +33,10 @@
     return dfd.promise();
   };
 
-  getImageType = function(url, filename) {
+  getImageType = function(url) {
     var dfd;
     dfd = $.Deferred();
-    if (filename.indexOf('.') === -1) {
-      dfd.resolve('');
-    } else if (url != null) {
+    if (url != null) {
       chrome.extension.sendMessage({
         type: 'filetype',
         url: url
@@ -103,15 +90,10 @@
   };
 
   download = function(url, filename) {
-    var toClick;
-    toClick = $('<a>');
-    toClick.attr('href', url);
-    toClick.attr('download', filename);
-    return dispatchMouseEvents({
-      type: 'click',
-      altKey: false,
-      target: toClick.get(0),
-      button: 0
+    return chrome.extension.sendMessage({
+      type: 'download',
+      url: url,
+      filename: filename
     });
   };
 
@@ -125,7 +107,7 @@
     a.attr('href', 'javascript:void(0);');
     main = function() {
       url_dfd.done(function(url) {
-        return getImageType(url, filename).done(function(type) {
+        return getImageType(url).done(function(type) {
           return download(url, filename + type);
         });
       });
@@ -147,7 +129,7 @@
     var tag;
     tag = $('#illust_main_top a:eq(1)');
     if (tag.length > 0) {
-      return tag.attr('href');
+      return 'http://seiga.nicovideo.jp/' + tag.attr('href');
     } else {
       return null;
     }
@@ -197,7 +179,9 @@
     a.append(img);
     a.attr('href', 'javascript:void(0);');
     main = function() {
-      download(url, filename);
+      getImageType(url).done(function(type) {
+        return download(url, filename + type);
+      });
       return false;
     };
     a.one('click', main);

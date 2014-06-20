@@ -17,5 +17,8 @@ chrome.extension.onMessage.addListener (request, sender, sendResponse) ->
             sendResponse({image_type: filetype})
         .fail (data, status) ->
             sendResponse(null)
+    else if request.type == 'download'
+        chrome.downloads.download({url: request.url, filename: request.filename})
+        sendResponse(null)
     true
 

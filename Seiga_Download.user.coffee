@@ -1,15 +1,4 @@
 'use strict';
-dispatchMouseEvents = (opt) ->
-    ###
-    Alt + Click
-    See: http://d.hatena.ne.jp/Griever/20100904/1283603283
-    ###
-    evt = document.createEvent('MouseEvents');
-    evt.initMouseEvent(opt.type, opt.canBubble||true, opt.cancelable||true, opt.view||window, 
-                       opt.detail||0, opt.screenX||0, opt.screenY||0, opt.clientX||0, opt.clientY||0, 
-                       opt.ctrlKey||false, opt.altKey||false, opt.shiftKey||false, opt.metaKey||false, 
-                       opt.button||0, opt.relatedTarget||null);
-    opt.target.dispatchEvent(evt);
 
 getImagePageURL = () ->
     tag = $('#illust_link')
@@ -31,11 +20,9 @@ getImageURL = () ->
         dfd.reject()
     dfd.promise()
 
-getImageType = (url, filename) ->
+getImageType = (url) ->
     dfd = $.Deferred()
-    if filename.indexOf('.') == -1
-        dfd.resolve('')
-    else if url?
+    if url?
         chrome.extension.sendMessage {type: 'filetype', url: url}, (response) ->
             if response?
                 dfd.resolve(response.image_type)
@@ -72,10 +59,7 @@ getFileName = () ->
         null
 
 download = (url, filename) ->
-    toClick = $('<a>')
-    toClick.attr('href', url);
-    toClick.attr('download', filename);
-    dispatchMouseEvents({type:'click', altKey:false, target:toClick.get(0), button:0});
+    chrome.extension.sendMessage {type: 'download', url: url, filename: filename}
 
 addLink = (url_dfd, filename) ->
     img = $('<img>')
@@ -87,7 +71,7 @@ addLink = (url_dfd, filename) ->
     a.attr('href', 'javascript:void(0);');
     main = () ->
         url_dfd.done (url) ->
-            getImageType(url, filename).done (type) ->
+            getImageType(url).done (type) ->
                 download(url, filename + type)
 #                document.querySelector('#SD img').setAttribute('src', chrome.extension.getURL('download2.png'));
         false
@@ -109,7 +93,7 @@ if filename?
 getImageURL_old = () ->
     tag = $('#illust_main_top a:eq(1)')
     if tag.length > 0
-        tag.attr('href');
+        'http://seiga.nicovideo.jp/' + tag.attr('href');
     else
         null
 
@@ -147,7 +131,8 @@ addLink_old = (url, filename) ->
     a.append(img);
     a.attr('href', 'javascript:void(0);');
     main = () ->
-        download(url, filename)
+        getImageType(url).done (type) ->
+            download(url, filename + type)
         false
     a.one('click', main);
 
