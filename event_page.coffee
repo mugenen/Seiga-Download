@@ -20,5 +20,7 @@ chrome.extension.onMessage.addListener (request, sender, sendResponse) ->
     else if request.type == 'download'
         chrome.downloads.download({url: request.url, filename: request.filename})
         sendResponse(null)
+    else if request.type == 'filename_setting'
+        sendResponse(localStorage['filename_setting'] ? '?member-name? - ?title?(?illust-id?)')
     true
 

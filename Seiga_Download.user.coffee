@@ -46,17 +46,40 @@ getImageCreator = () ->
     else
         null
 
+getImageCreatorID = () ->
+    tag = $('.user_name a').eq(0)
+    if tag.length > 0
+        tag.attr('href').split('/').pop()
+    else
+        null
+
 getImageID = () ->
     document.URL.replace(/.*?(im\d+).*/, '$1')
 
+getFileNameSetting = () ->
+    dfd = $.Deferred()
+    chrome.extension.sendMessage {type: 'filename_setting'}, (response) ->
+        dfd.resolve(response)
+    dfd.promise()
+
 getFileName = () ->
     creator = getImageCreator()
+    creatorID = getImageCreatorID()
     title = getImageTitle()
     id = getImageID()
-    if creator? and title? and id?
-        "#{creator} - #{title}(#{id})"
+    data =
+        'member-name': creator
+        'member-id': creatorID
+        'title': title
+        'illust-id': id
+    if creator? and creatorID and title? and id?
+        getFileNameSetting().pipe (filename_setting) -> filename_setting.replace(
+            /\?(.+?)\?/g,
+            (match, group) -> data[group]
+        )
     else
-        null
+        dfd = $.Deferred()
+        dfd.reject()
 
 download = (url, filename) ->
     chrome.extension.sendMessage {type: 'download', url: url, filename: filename}
@@ -84,10 +107,9 @@ addLink = (url_dfd, filename) ->
     parent = $('.thum_large').eq(0);
     parent.prepend(div);
 
-filename = getFileName()
-
-if filename?
-    addLink(getImageURL(), filename)
+getFileName().done (filename) ->
+    if filename?
+        addLink(getImageURL(), filename)
 
 
 getImageURL_old = () ->
@@ -119,9 +141,13 @@ getFileName_old = () ->
     title = getImageTitle_old()
     id = getImageID_old()
     if creator? and title? and id?
-        "#{creator} - #{title}(#{id})"
+        getFileNameSetting().pipe (filename_setting) -> filename_setting.replace(
+            /\?(member-name|title|illust-id)\?/g,
+            (match, group) -> data[group]
+        )
     else
-        null
+        dfd = $.Deferred()
+        dfd.reject()
 
 addLink_old = (url, filename) ->
     img = $('<img>')

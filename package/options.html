@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><title>Pixiv Tag Suggest Options</title></head>
+<script type="text/javascript" src="./jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="./options.js"></script>
+<body>
+<p>
+<label for="filename_setting">ダウンロード時のファイル名</label>
+<input type="text" id="filename_setting" size="40">
+<button id="save">設定を保存</button>
+</p>
+<p>変な文字が入ると保存できなくなる場合があります</p>
+<h2>デフォルトのファイル名</h2>
+<p>?member-name? - ?title?(?illust-id?)</p>
+<h2>置換に使える特殊な文字列()内のものに置換される</h2>
+<ul>
+<li>?member-name?(ユーザー名)</li>
+<li>?member-id?(ユーザーID(数値))</li>
+<li>?title?(タイトル)</li>
+<li>?illust-id?(イラストID)</li>
+</ul>
+</body>
+</html>
