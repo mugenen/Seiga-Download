@@ -133,16 +133,29 @@ getImageCreator_old = () ->
     else
         null
 
+getImageCreatorID_old = () ->
+    tag = $('.illust_user_name a').eq(0)
+    if tag.length > 0
+        tag.attr('href').split('/').pop().split('?')[0]
+    else
+        null
+
 getImageID_old = () ->
     document.URL.replace(/.*?(im\d+).*/, '$1')
 
 getFileName_old = () ->
     creator = getImageCreator_old()
+    creatorID = getImageCreatorID_old()
     title = getImageTitle_old()
     id = getImageID_old()
-    if creator? and title? and id?
+    data =
+        'member-name': creator
+        'member-id': creatorID
+        'title': title
+        'illust-id': id
+    if creator? and creatorID and title? and id?
         getFileNameSetting().pipe (filename_setting) -> filename_setting.replace(
-            /\?(member-name|title|illust-id)\?/g,
+            /\?(.+?)\?/g,
             (match, group) -> data[group]
         )
     else
@@ -171,7 +184,6 @@ addLink_old = (url, filename) ->
 
 
 url = getImageURL_old()
-filename = getFileName_old()
-
-if url? and filename?
-    addLink_old(url, filename)
+getFileName_old().done (filename) ->
+    if url? and filename?
+        addLink_old(url, filename)
