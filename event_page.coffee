@@ -1,7 +1,7 @@
 chrome.extension.onMessage.addListener (request, sender, sendResponse) ->
     if request.type == 'url'
         $.ajax(request.url).done (data, status) ->
-            image_url = data.match('img src="(.*?)" data-watch_url.*')[1]
+            image_url = data.match('data-src="(.*?)"')[1]
             sendResponse({image_url: image_url})
         .fail (data, status) ->
             sendResponse(null)

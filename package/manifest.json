@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Seiga Download",
-  "version": "3.7",
+  "version": "3.8",
   "description": "ニコニコ静画の作品ページに画像ダウンロード用のリンクを追加",
   "options_page": "options.html",
   "icons": 
@@ -30,6 +30,7 @@
   },
   "permissions": [
       "http://lohas.nicoseiga.jp/",
+      "https://lohas.nicoseiga.jp/",
       "http://seiga.nicovideo.jp/",
       "downloads"
   ],

@@ -5,7 +5,7 @@
     if (request.type === 'url') {
       $.ajax(request.url).done(function(data, status) {
         var image_url;
-        image_url = data.match('img src="(.*?)" data-watch_url.*')[1];
+        image_url = data.match('data-src="(.*?)"')[1];
         return sendResponse({
           image_url: image_url
         });
